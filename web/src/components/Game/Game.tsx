@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 const Game = () => {
+  const countDown = 10
+
   const [score, setScore] = useState(0)
   const [timeUp, setTimeUp] = useState(false)
   const [lastHole, setLastHole] = useState(null)
   const [holes, setHoles] = useState(Array.from({ length: 6 }, () => false))
   const [addListener, setAddListener] = useState(false)
+  const [timer, setTimer] = useState(countDown)
 
   const randomTime = (min, max) => {
     return Math.random() * (max - min) + min
@@ -41,20 +44,23 @@ const Game = () => {
     setTimeUp(false)
     setAddListener(true)
     peep()
+    const timeCount = setInterval(() => setTimer((prev) => prev - 1), 1000)
+
     setTimeout(() => {
       setTimeUp(true)
       setAddListener(false)
-      alert(`Wow! Your score is ${score}!`)
-    }, 10000)
+      alert('Times Up!')
+      clearInterval(timeCount)
+      setTimer(countDown)
+    }, countDown * 1000)
   }
 
   const bonk = (index) => {
-    console.log('--this is addlistener', addListener)
     if (holes[index]) {
       const updatedHoles = [...holes]
       updatedHoles[index] = false
       setHoles(updatedHoles)
-      setScore(score + 1)
+      setScore((prev) => prev + 1)
     }
   }
 
@@ -64,7 +70,7 @@ const Game = () => {
         Whack-a-mole! <span className="score">{score}</span>
       </h1>
       <button onClick={startGame} disabled={addListener}>
-        Start!
+        Start! {timer < 10 ? `0${timer}` : timer}
       </button>
 
       <div className="game">
